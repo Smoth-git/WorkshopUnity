@@ -47,9 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f36fd542c5359cf46a07088ac5b9979b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_topSpeed: 1
-  m_moveSpeed: 700
-  m_jumpForce: 100
+  m_topSpeed: 0
+  m_moveSpeed: 0
+  m_jumpForce: 0
 --- !u!61 &6936761757197718371
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -107,7 +107,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 50
+  m_Mass: 1
   m_LinearDrag: 1
   m_AngularDrag: 0.05
   m_GravityScale: 1
