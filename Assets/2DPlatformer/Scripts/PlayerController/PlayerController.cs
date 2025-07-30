@@ -1,15 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField]
-    private InputActionAsset m_playerInput;
-    private InputAction m_moveAction;
-    private InputAction m_jumpAction;
-    
     private bool m_readyToJump = false;
     private bool m_isJumping = false;
     [SerializeField]
@@ -27,11 +20,6 @@ public class PlayerController : MonoBehaviour
     private Vector2 m_moveVector;
     private void Awake()
     {
-        //Set Input Actions
-        m_moveAction = InputSystem.actions.FindAction("Move");        
-        m_jumpAction = InputSystem.actions.FindAction("Jump");
-
-
         //Get Components
         m_rigidbody = GetComponent<Rigidbody2D>();
         m_animator = GetComponentInChildren<Animator>();
@@ -40,7 +28,7 @@ public class PlayerController : MonoBehaviour
     }
     void Start()
     {
-        
+        Time.timeScale = 1.0f;   
     }
 
     // Update is called once per frame
@@ -60,15 +48,19 @@ public class PlayerController : MonoBehaviour
 
     void PlayerMovement()
     {
-        m_moveVector.x = m_moveAction.ReadValue<Vector2>().x;
+        m_moveVector.x = Input.GetAxis("Horizontal");
         //Set Face Direction Based on Input
-        if(m_rigidbody.velocity.x < 0)
+        if(m_moveVector.x < 0)
         {
-            transform.localScale = new Vector3(-1,1,1);
+            transform.localScale = new Vector3(-1,1,1);            
+        }
+        else if (m_moveVector.x > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);            
         }
         else
         {
-            transform.localScale = new Vector3(1, 1, 1);
+            m_animator.SetTrigger("Idle");            
         }
         //while jumping check for ground
         if (m_isJumping)
@@ -81,33 +73,42 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            m_animator.SetFloat("Movement", m_rigidbody.velocity.magnitude);
+            if (m_moveVector.x < 0)
+            {                
+                m_animator.SetTrigger("Movement");
+            }
+            else if (m_moveVector.x > 0)
+            {                
+                m_animator.SetTrigger("Movement");
+            }
         }
-        if (m_jumpAction.IsPressed())
+        if (Input.GetKey(KeyCode.Space)) 
         {
-            SetJump();       
-        }
+            SetJump();
+        }        
     }
 
     private void SetJump()
     {
         if (Physics2D.Raycast(transform.position, Vector2.down, 1.1f))
         {
-            m_readyToJump = true;
+            m_readyToJump = true;            
         }
     }
 
     private void Jump()
     {
-        m_rigidbody.AddForce(m_jumpForce * Vector2.up, ForceMode2D.Impulse);
-        m_animator.SetTrigger("Jump");
-        m_readyToJump = false;        
-        StartCoroutine(SetJumpBool());
-    } 
-
-    private IEnumerator SetJumpBool()
-    {
-        yield return new WaitForSeconds(0.5f);
+        m_rigidbody.AddForce(m_jumpForce * Vector2.up, ForceMode2D.Impulse);        
+        m_readyToJump = false;
         m_isJumping = true;
     }
+
+    private void CapSpeed() 
+    {
+        if (m_rigidbody.velocity.magnitude > m_topSpeed)
+        { 
+            m_rigidbody.velocity = m_rigidbody.velocity.normalized * m_topSpeed;
+        }
+    }
 }
+
